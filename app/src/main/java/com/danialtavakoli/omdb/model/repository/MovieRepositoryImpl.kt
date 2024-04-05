@@ -1,6 +1,8 @@
 package com.danialtavakoli.omdb.model.repository
 
 import com.danialtavakoli.omdb.model.data.Movie
+import com.danialtavakoli.omdb.model.data.MovieDetails
+import com.danialtavakoli.omdb.model.data.provideMockMovieDetails
 import com.danialtavakoli.omdb.model.db.MovieDao
 import com.danialtavakoli.omdb.model.net.ApiService
 import javax.inject.Inject
@@ -22,5 +24,22 @@ class MovieRepositoryImpl @Inject constructor(
                 movies
             } else throw Exception(remoteMovies.errorBody()?.string() ?: "Unknown error occurred")
         } else localMovies
+    }
+
+    override suspend fun getMovieDetails(
+        imdbId: String,
+        isInternetConnected: Boolean,
+    ): MovieDetails {
+        val localMovieDetails = movieDao.getMovieDetails(imdbID = imdbId)
+        return if (localMovieDetails == null && isInternetConnected) {
+            val response = apiService.getMovieDetails(imdbID = imdbId)
+            if (response.isSuccessful) {
+                val remoteMovieDetails =
+                    response.body() ?: throw Exception("Movie details not found")
+                movieDao.insertMovieDetails(remoteMovieDetails)
+                remoteMovieDetails
+            } else throw Exception(response.errorBody()?.string() ?: "Unknown error occurred")
+        } else if (!isInternetConnected && localMovieDetails == null) provideMockMovieDetails()
+        else localMovieDetails ?: throw Exception("Local movie details not found")
     }
 }
