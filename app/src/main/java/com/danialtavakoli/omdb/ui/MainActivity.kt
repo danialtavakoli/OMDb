@@ -1,4 +1,4 @@
-package com.danialtavakoli.omdb
+package com.danialtavakoli.omdb.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
