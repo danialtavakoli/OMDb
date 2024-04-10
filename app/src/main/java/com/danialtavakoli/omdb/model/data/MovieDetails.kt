@@ -1,6 +1,5 @@
 package com.danialtavakoli.omdb.model.data
 
-import Rating
 import androidx.room.Entity
 import com.google.gson.annotations.SerializedName
 

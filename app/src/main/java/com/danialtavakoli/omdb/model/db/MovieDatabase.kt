@@ -1,6 +1,6 @@
 package com.danialtavakoli.omdb.model.db
 
-import Converters
+import com.danialtavakoli.omdb.model.data.Converters
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
