@@ -10,15 +10,15 @@ import com.danialtavakoli.omdb.model.data.MovieDetails
 @Dao
 interface MovieDao {
     @Query("SELECT * FROM movieTable")
-    fun getMoviesList(): List<Movie>?
+    suspend fun getMoviesList(): List<Movie>?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertMovies(movies: List<Movie>)
+    suspend fun insertMovies(movies: List<Movie>)
 
     @Query("SELECT * FROM movieDetailsTable WHERE imdbID = :imdbID")
-    fun getMovieDetails(imdbID: String): MovieDetails?
+    suspend fun getMovieDetails(imdbID: String): MovieDetails?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertMovieDetails(movieDetails: MovieDetails)
+    suspend fun insertMovieDetails(movieDetails: MovieDetails)
 
 }
