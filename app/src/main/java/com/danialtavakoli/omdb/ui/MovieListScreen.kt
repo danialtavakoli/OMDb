@@ -13,14 +13,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.danialtavakoli.omdb.R
 import com.danialtavakoli.omdb.model.data.Movie
 import com.danialtavakoli.omdb.model.net.NetworkChecker
 import com.danialtavakoli.omdb.model.net.showToast
@@ -50,10 +52,11 @@ fun MovieListScreen(
     modifier: Modifier = Modifier,
 ) {
     var title by remember { mutableStateOf(movieTitle) }
-
     val moviesList by viewModel.moviesList.collectAsState()
 
-    LaunchedEffect(key1 = Unit) {
+    Log.v("TagX", title)
+    LaunchedEffect(title, moviesList) {
+        Log.v("TagY", title)
         val isInternetConnected = NetworkChecker(context).isInternetConnected
         viewModel.fetchMovies(
             title = title, isInternetConnected = isInternetConnected
@@ -68,16 +71,8 @@ fun MovieListScreen(
                 .padding(vertical = 8.dp),
             onSearch = { newTitle ->
                 title = newTitle
-                suspend {
-                    Log.v("testX", title)
-                    viewModel.fetchMovies(
-                        title = newTitle,
-                        isInternetConnected = NetworkChecker(context).isInternetConnected
-                    )
-                }
-            }
+            },
         )
-
         LazyColumn {
             items(items = moviesList) { movie ->
                 MovieListItem(movie = movie, onItemClick = onItemClick)
@@ -135,40 +130,43 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     onSearch: (String) -> Unit
 ) {
-    var text by remember { mutableStateOf(TextFieldValue()) }
-
+    var searchText by remember { mutableStateOf(TextFieldValue()) }
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = Icons.Rounded.Search,
-            contentDescription = null,
-            modifier = Modifier.size(24.dp),
-            tint = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.width(8.dp))
-        BasicTextField(
-            value = text,
-            onValueChange = { text = it },
+        TextField(
+            value = searchText,
+            onValueChange = {
+                searchText = it
+                onSearch(it.text)
+            },
             modifier = Modifier
                 .weight(1f)
                 .padding(end = 8.dp),
             singleLine = true,
+            placeholder = {
+                Row {
+                    Icon(
+                        imageVector = Icons.Rounded.Search,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = Color.Black
+                    )
 
-            )
-
-        Icon(
-            painter = painterResource(id = androidx.core.R.drawable.ic_call_answer),
-            contentDescription = null,
-            modifier = Modifier
-                .size(24.dp)
-                .clickable {
-                    onSearch(text.text)
+                    Text(text = "Search here...")
                 }
+            },
         )
+        IconButton(onClick = { }) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_filter),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+
     }
 }

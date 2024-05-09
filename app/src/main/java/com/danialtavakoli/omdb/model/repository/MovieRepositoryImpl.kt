@@ -14,15 +14,17 @@ class MovieRepositoryImpl @Inject constructor(
     private val movieDao: MovieDao,
 ) : MovieRepository {
     override suspend fun getMoviesList(title: String, isInternetConnected: Boolean): List<Movie> {
-        val localMovies = movieDao.getMoviesList()
+        val localMovies = movieDao.getMoviesList(title = title)
         return if (localMovies?.isEmpty()!! && isInternetConnected) {
+            //get from net
             val remoteMovies = apiService.getMoviesList(title = title)
             if (remoteMovies.isSuccessful) {
                 val movies =
-                    remoteMovies.body()?.search ?: throw Exception("Movie details not found")
+                    remoteMovies.body()?.search ?: listOf()
                 movieDao.insertMovies(movies)
                 movies
             } else throw Exception(remoteMovies.errorBody()?.string() ?: "Unknown error occurred")
+            //get from local
         } else localMovies
     }
 
