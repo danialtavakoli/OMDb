@@ -20,33 +20,31 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val movieTitle = "batman"
         setContent {
             OMDbTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    MoviesScreen(movieTitle)
+                    MoviesScreen()
                 }
             }
         }
     }
 
     @Composable
-    fun MoviesScreen(movieTitle: String, modifier: Modifier = Modifier) {
+    fun MoviesScreen(modifier: Modifier = Modifier) {
         val navController = rememberNavController()
         NavHost(navController, startDestination = "movieList") {
             composable("movieList") {
                 val viewModel = hiltViewModel<MovieViewModel>()
                 MovieListScreen(
                     viewModel = viewModel,
-                    movieTitle = movieTitle,
-                    context = this@MainActivity,
-                    modifier = modifier,
                     onItemClick = { imdbId ->
                         navController.navigate("movieDetails/$imdbId")
                     },
+                    context = this@MainActivity,
+                    modifier = modifier,
                 )
             }
             composable("movieDetails/{imdbId}") { backStackEntry ->
