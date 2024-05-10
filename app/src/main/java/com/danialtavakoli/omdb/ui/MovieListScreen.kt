@@ -63,7 +63,7 @@ fun MovieListScreen(
         viewModel.fetchMovies(
             title = title, isInternetConnected = isInternetConnected
         )
-        if (!isInternetConnected && moviesList.isEmpty()) context.showToast("Internet not connected!")
+        if (!isInternetConnected && moviesList.isEmpty()) context.showToast("Internet is not connected!")
     }
 
     Column(modifier = modifier) {

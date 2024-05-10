@@ -9,7 +9,7 @@ import com.danialtavakoli.omdb.model.data.MovieDetails
 
 @Dao
 interface MovieDao {
-    @Query("SELECT * FROM movieTable WHERE title = :title")
+    @Query("SELECT * FROM movieTable WHERE title LIKE '%' || :title || '%'")
     suspend fun getMoviesList(title: String): List<Movie>?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

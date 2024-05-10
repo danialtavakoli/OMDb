@@ -19,8 +19,7 @@ class MovieRepositoryImpl @Inject constructor(
             //get from net
             val remoteMovies = apiService.getMoviesList(title = title)
             if (remoteMovies.isSuccessful) {
-                val movies =
-                    remoteMovies.body()?.search ?: listOf()
+                val movies = remoteMovies.body()?.search ?: listOf()
                 movieDao.insertMovies(movies)
                 movies
             } else throw Exception(remoteMovies.errorBody()?.string() ?: "Unknown error occurred")
