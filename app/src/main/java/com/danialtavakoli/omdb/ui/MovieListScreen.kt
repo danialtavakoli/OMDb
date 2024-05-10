@@ -105,7 +105,12 @@ fun EmptyListView() {
                 .padding(bottom = 16.dp)
         )
         Text(
-            text = "Start exploring by searching for movies using the search bar above.",
+            text = "No movies found",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = "Start exploring by searching for movies using the search bar above",
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             textAlign = TextAlign.Center,
