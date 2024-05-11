@@ -19,6 +19,13 @@ interface ApiService {
         @Query("i") imdbID: String,
     ): Response<MovieDetails>
 
+    @GET("/")
+    suspend fun getMoviesListByYear(
+        @Query("apikey") apiKey: String = API_KEY,
+        @Query("s") title: String="batman",
+        @Query("y") year: String,
+    ): Response<MovieSearch>
+
     companion object {
         const val API_URL = "https://www.omdbapi.com/"
         const val API_KEY = "3e974fca"

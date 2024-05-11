@@ -19,11 +19,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -57,12 +60,19 @@ fun MovieListScreen(
 ) {
     var title by remember { mutableStateOf("") }
     val moviesList by viewModel.moviesList.collectAsState()
-
-    LaunchedEffect(title, moviesList) {
+    var year by remember { mutableStateOf("") }
+    LaunchedEffect(title, moviesList, year) {
         val isInternetConnected = NetworkChecker(context).isInternetConnected
-        viewModel.fetchMovies(
-            title = title, isInternetConnected = isInternetConnected
-        )
+        if (year.equals(""))
+            viewModel.fetchMovies(
+                title = title, isInternetConnected = isInternetConnected
+            )
+        else
+            viewModel.fetchMoviesByYear(
+                title = title,
+                isInternetConnected = isInternetConnected,
+                year = year
+            )
         if (!isInternetConnected && moviesList.isEmpty()) context.showToast("Internet is not connected!")
     }
 
@@ -74,6 +84,9 @@ fun MovieListScreen(
             onSearch = { newTitle ->
                 title = newTitle
             },
+            onFilterClick = {},
+            onApplyFilter = { year = it },
+            clearYear = {year=""}
         )
         if (moviesList.isEmpty()) {
             EmptyListView()
@@ -162,9 +175,13 @@ fun MovieListItem(
 @Composable
 fun SearchBar(
     modifier: Modifier = Modifier,
-    onSearch: (String) -> Unit
+    onSearch: (String) -> Unit,
+    onFilterClick: () -> Unit,
+    onApplyFilter: (String) -> Unit,
+    clearYear:()->Unit
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue()) }
+    var isFilterDialogVisible by remember { mutableStateOf(false) } // State to control dialog visibility
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -194,13 +211,101 @@ fun SearchBar(
                 }
             },
         )
-        IconButton(onClick = { }) {
+        IconButton(onClick = {
+            isFilterDialogVisible = true
+            onFilterClick()
+        }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_filter),
-                contentDescription = null,
+                contentDescription = "Filter",
                 modifier = Modifier.size(24.dp)
             )
         }
 
+    }
+    if (isFilterDialogVisible) {
+        FilterSearchDialog(
+            // Pass necessary parameters and callbacks
+            onDismiss = { isFilterDialogVisible = false
+                clearYear()},
+            onApplyFilter = {
+                onApplyFilter(it)
+                isFilterDialogVisible = false
+            },
+            // Pass initial values or current filter values here
+            minPrice = 1888,
+            maxPrice = 2024,
+        )
+    }
+}
+@Composable
+fun FilterSearchDialog(
+    minPrice: Int,
+    maxPrice: Int,
+    onApplyFilter: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var year by remember { mutableStateOf(minPrice.toFloat()) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Filter Search") },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                SliderRow("Year", minPrice.toFloat(), maxPrice.toFloat(), year) { value ->
+                    year = value
+                }
+            }
+        },
+        confirmButton = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier.padding(top = 16.dp),
+                ) {
+                    Text("Cancel")
+                }
+                Button(
+                    onClick = {
+                        onApplyFilter(year.toInt().toString())
+                    },
+                    modifier = Modifier.padding(top = 16.dp)
+                ) {
+                    Text("Apply Filter")
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun SliderRow(
+    label: String,
+    minValue: Float,
+    maxValue: Float,
+    value: Float,
+    onValueChange: (Float) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp)
+    ) {
+        Text(label)
+        Spacer(modifier = Modifier.width(8.dp))
+        Slider(
+            value = value,
+            onValueChange = onValueChange,
+            valueRange = minValue..maxValue, // Set minimum and maximum values for the slider
+            steps = (maxValue - minValue).toInt(),
+            modifier = Modifier.weight(1f)
+        )
+        Text(text = "${value.toInt()}")
     }
 }
