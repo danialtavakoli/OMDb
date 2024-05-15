@@ -16,8 +16,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -50,6 +52,7 @@ import com.danialtavakoli.omdb.R
 import com.danialtavakoli.omdb.model.data.Movie
 import com.danialtavakoli.omdb.model.net.NetworkChecker
 import com.danialtavakoli.omdb.model.net.showToast
+
 
 @Composable
 fun MovieListScreen(
@@ -246,6 +249,9 @@ fun FilterSearchDialog(
     onDismiss: () -> Unit
 ) {
     var year by remember { mutableStateOf(minPrice.toFloat()) }
+    var selectedContentType by remember { mutableStateOf("") }
+    val contentTypes = listOf("Action", "Comedy", "Drama", "Horror", "Sci-Fi") // Example genres
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Filter Search") },
@@ -258,6 +264,11 @@ fun FilterSearchDialog(
                 SliderRow("Year", minPrice.toFloat(), maxPrice.toFloat(), year) { value ->
                     year = value
                 }
+                DropdownMenuRow(
+                    label = "Content Type",
+                    options = contentTypes,
+                    selectedOption = selectedContentType
+                )
             }
         },
         confirmButton = {
@@ -284,6 +295,7 @@ fun FilterSearchDialog(
     )
 }
 
+
 @Composable
 fun SliderRow(
     label: String,
@@ -307,5 +319,36 @@ fun SliderRow(
             modifier = Modifier.weight(1f)
         )
         Text(text = "${value.toInt()}")
+    }
+}
+
+@Composable
+fun DropdownMenuRow(
+    label: String,
+    options: List<String>,
+    selectedOption: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp)
+    ) {
+        Text(label)
+        Spacer(modifier = Modifier.width(8.dp))
+        BasicTextField(
+            value = TextFieldValue(selectedOption),
+            onValueChange = {},
+            singleLine = true,
+            readOnly = true,
+            modifier = Modifier.weight(1f)
+        )
+        IconButton(
+            onClick = { /* Toggle dropdown */ }
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.ArrowDropDown,
+                contentDescription = null
+            )
+        }
     }
 }
