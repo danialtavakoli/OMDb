@@ -1,6 +1,9 @@
 package com.danialtavakoli.omdb.ui
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,7 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,6 +64,10 @@ fun MovieDetailsScreen(
                 .fillMaxWidth()
                 .height(300.dp)
                 .background(MaterialTheme.colorScheme.onPrimary)
+                .clickable {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(movieDetails.poster))
+                    context.startActivity(intent)
+                },
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -69,7 +76,7 @@ fun MovieDetailsScreen(
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Divider(color = Color.Gray)
+        HorizontalDivider(color = Color.Gray)
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Year: ${movieDetails.year}\nGenre: ${movieDetails.genre}",
