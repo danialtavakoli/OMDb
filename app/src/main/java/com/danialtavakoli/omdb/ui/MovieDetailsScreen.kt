@@ -21,6 +21,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
@@ -49,35 +52,40 @@ fun MovieDetailsScreen(
 
     if (!NetworkChecker(context).isInternetConnected && movieDetails.imdbID == "") return
 
+    val gradient = Brush.linearGradient(
+        colors = listOf(Color.White, Color(0xFF8CC2F0)),
+        start = Offset(0f, 0f),
+        end = Offset(0f, Float.POSITIVE_INFINITY)
+    )
+
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(gradient)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(32.dp)
     ) {
+        Spacer(modifier = Modifier.height(8.dp))
         AsyncImage(
             model = movieDetails.poster,
             contentDescription = movieDetails.title,
-            contentScale = ContentScale.Fit,
+            contentScale = ContentScale.FillBounds,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp)
-                .background(MaterialTheme.colorScheme.onPrimary)
+                .clip(shape = RoundedCornerShape(8.dp))
                 .clickable {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(movieDetails.poster))
                     context.startActivity(intent)
                 },
         )
-        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = movieDetails.title,
             style = MaterialTheme.typography.displaySmall,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(8.dp))
         HorizontalDivider(color = Color.Gray)
-        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Year: ${movieDetails.year}\nGenre: ${movieDetails.genre}",
             style = MaterialTheme.typography.bodyMedium,
