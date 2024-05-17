@@ -43,4 +43,22 @@ class MovieRepositoryImpl @Inject constructor(
         } else if (!isInternetConnected && localMovieDetails == null) provideMockMovieDetails()
         else localMovieDetails ?: throw Exception("Local movie details not found")
     }
+
+    override suspend fun getMoviesListByYear(
+        title: String,
+        isInternetConnected: Boolean,
+        year: String
+    ): List<Movie> {
+        val localMovies = movieDao.getMoviesListByYear(title = title, year = year)
+        return if (localMovies?.isEmpty()!! && isInternetConnected) {
+            //get from net
+            val remoteMovies = apiService.getMoviesListByYear(title = title,year=year)
+            if (remoteMovies.isSuccessful) {
+                val movies = remoteMovies.body()?.search ?: listOf()
+                movieDao.insertMovies(movies)
+                movies
+            } else throw Exception(remoteMovies.errorBody()?.string() ?: "Unknown error occurred")
+            //get from local
+        } else localMovies
+    }
 }
