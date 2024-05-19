@@ -16,13 +16,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -61,18 +65,39 @@ fun MovieListScreen(
     var title by remember { mutableStateOf("") }
     val moviesList by viewModel.moviesList.collectAsState()
     var year by remember { mutableStateOf("") }
-    LaunchedEffect(title, moviesList, year) {
+    var type by remember { mutableStateOf("") }
+    LaunchedEffect(title, moviesList, year,type) {
         val isInternetConnected = NetworkChecker(context).isInternetConnected
-        if (year.equals(""))
+        if (year=="" && type=="")
             viewModel.fetchMovies(
                 title = title, isInternetConnected = isInternetConnected
             )
-        else
+        else if(type=="" && year.isNotEmpty())
             viewModel.fetchMoviesByYear(
                 title = title,
                 isInternetConnected = isInternetConnected,
                 year = year
             )
+        else if(type.isNotEmpty() && year=="")
+            viewModel.fetchMoviesByType(
+                title = title,
+                isInternetConnected = isInternetConnected,
+                type = type
+            )
+        else {
+            viewModel.fetchMoviesByYear(
+                title = title,
+                isInternetConnected = isInternetConnected,
+                year = year,
+            )
+            viewModel.fetchMoviesByType(
+                title = title,
+                isInternetConnected = isInternetConnected,
+                type = type,
+            )
+
+        }
+
         if (!isInternetConnected && moviesList.isEmpty()) context.showToast("Internet is not connected!")
     }
 
@@ -85,7 +110,7 @@ fun MovieListScreen(
                 title = newTitle
             },
             onFilterClick = {},
-            onApplyFilter = { year = it },
+            onApplyFilter = { year = it.first ;type = it.second },
             clearYear = {year=""}
         )
         if (moviesList.isEmpty()) {
@@ -182,7 +207,7 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     onSearch: (String) -> Unit,
     onFilterClick: () -> Unit,
-    onApplyFilter: (String) -> Unit,
+    onApplyFilter: (Pair<String,String>) -> Unit,
     clearYear:()->Unit
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue()) }
@@ -240,6 +265,9 @@ fun SearchBar(
             // Pass initial values or current filter values here
             minPrice = 1888,
             maxPrice = 2024,
+            contentTypes = listOf("movie","series","episode"),
+            selectedContentType = "movie",
+            onContentTypeSelected = {}
         )
     }
 }
@@ -247,10 +275,14 @@ fun SearchBar(
 fun FilterSearchDialog(
     minPrice: Int,
     maxPrice: Int,
-    onApplyFilter: (String) -> Unit,
+    contentTypes: List<String>, // List of content types (genres)
+    selectedContentType: String,
+    onContentTypeSelected: (String) -> Unit,
+    onApplyFilter: (Pair<String,String>) -> Unit,
     onDismiss: () -> Unit
 ) {
     var year by remember { mutableStateOf(minPrice.toFloat()) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Filter Search") },
@@ -263,6 +295,13 @@ fun FilterSearchDialog(
                 SliderRow("Year", minPrice.toFloat(), maxPrice.toFloat(), year) { value ->
                     year = value
                 }
+                Spacer(modifier = Modifier.height(16.dp))
+                DropdownMenuRow(
+                    label = "Content Type",
+                    options = contentTypes,
+                    selectedOption = selectedContentType,
+                    onOptionSelected = onContentTypeSelected
+                )
             }
         },
         confirmButton = {
@@ -278,7 +317,7 @@ fun FilterSearchDialog(
                 }
                 Button(
                     onClick = {
-                        onApplyFilter(year.toInt().toString())
+                        onApplyFilter(Pair(year.toInt().toString(), selectedContentType))
                     },
                     modifier = Modifier.padding(top = 16.dp)
                 ) {
@@ -288,7 +327,6 @@ fun FilterSearchDialog(
         }
     )
 }
-
 @Composable
 fun SliderRow(
     label: String,
@@ -312,5 +350,36 @@ fun SliderRow(
             modifier = Modifier.weight(1f)
         )
         Text(text = "${value.toInt()}")
+    }
+}
+@Composable
+fun DropdownMenuRow(
+    label: String,
+    options: List<String>,
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp)
+    ) {
+        Text(label)
+        Spacer(modifier = Modifier.width(8.dp))
+        BasicTextField(
+            value = TextFieldValue(selectedOption),
+            onValueChange = {},
+            singleLine = true,
+            readOnly = true,
+            modifier = Modifier.weight(1f)
+        )
+        IconButton(
+            onClick = { /* Toggle dropdown */ }
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.ArrowDropDown,
+                contentDescription = null
+            )
+        }
     }
 }

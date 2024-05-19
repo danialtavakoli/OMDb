@@ -24,4 +24,7 @@ interface MovieDao {
     @Query("SELECT * FROM movieTable WHERE title LIKE '%' || :title || '%' AND  year = :year")
     suspend fun getMoviesListByYear(title: String,year:String): List<Movie>?
 
+    @Query("SELECT * FROM movieTable WHERE title LIKE '%' || :title || '%' AND  type = :type")
+    suspend fun getMoviesListByType(title: String,type:String): List<Movie>?
+
 }

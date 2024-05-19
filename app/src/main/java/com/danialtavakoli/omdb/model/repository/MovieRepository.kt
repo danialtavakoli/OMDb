@@ -9,5 +9,6 @@ interface MovieRepository {
     suspend fun getMovieDetails(imdbId: String, isInternetConnected: Boolean): MovieDetails
 
     suspend fun getMoviesListByYear(title: String="batman", isInternetConnected: Boolean,year:String): List<Movie>
+    suspend fun getMoviesListByType(title: String="batman", isInternetConnected: Boolean,type:String): List<Movie>
 
 }

@@ -25,6 +25,12 @@ interface ApiService {
         @Query("s") title: String="batman",
         @Query("y") year: String,
     ): Response<MovieSearch>
+    @GET("/")
+    suspend fun getMoviesListByType(
+        @Query("apikey") apiKey: String = API_KEY,
+        @Query("s") title: String="batman",
+        @Query("type") type: String,
+    ): Response<MovieSearch>
 
     companion object {
         const val API_URL = "https://www.omdbapi.com/"

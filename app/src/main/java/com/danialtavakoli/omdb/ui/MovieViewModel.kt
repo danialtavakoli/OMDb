@@ -39,6 +39,17 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
             _moviesList.value = moviesList
         }
     }
+    suspend fun fetchMoviesByType(title: String, isInternetConnected: Boolean, type: String) {
+        viewModelScope.launch {
+            val moviesList =
+                repository.getMoviesListByType(
+                    title = title,
+                    isInternetConnected = isInternetConnected,
+                    type = type
+                )
+            _moviesList.value = moviesList
+        }
+    }
 
     suspend fun fetchMovieDetails(imdbID: String, isInternetConnected: Boolean) {
         viewModelScope.launch {

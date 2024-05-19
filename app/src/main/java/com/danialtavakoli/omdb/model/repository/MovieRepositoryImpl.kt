@@ -61,4 +61,21 @@ class MovieRepositoryImpl @Inject constructor(
             //get from local
         } else localMovies
     }
+    override suspend fun getMoviesListByType(
+        title: String,
+        isInternetConnected: Boolean,
+        type: String
+    ): List<Movie> {
+        val localMovies = movieDao.getMoviesListByType(title = title, type = type)
+        return if (localMovies?.isEmpty()!! && isInternetConnected) {
+            //get from net
+            val remoteMovies = apiService.getMoviesListByType(title = title,type=type)
+            if (remoteMovies.isSuccessful) {
+                val movies = remoteMovies.body()?.search ?: listOf()
+                movieDao.insertMovies(movies)
+                movies
+            } else throw Exception(remoteMovies.errorBody()?.string() ?: "Unknown error occurred")
+            //get from local
+        } else localMovies
+    }
 }
