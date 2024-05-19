@@ -53,7 +53,7 @@ fun MovieDetailsScreen(
     if (!NetworkChecker(context).isInternetConnected && movieDetails.imdbID == "") return
 
     val gradient = Brush.linearGradient(
-        colors = listOf(Color.White, Color(0xFF8CC2F0)),
+        colors = listOf(Color.White, MaterialTheme.colorScheme.primary),
         start = Offset(0f, 0f),
         end = Offset(0f, Float.POSITIVE_INFINITY)
     )
@@ -88,7 +88,7 @@ fun MovieDetailsScreen(
         HorizontalDivider(color = Color.Gray)
         Text(
             text = "Year: ${movieDetails.year}\nGenre: ${movieDetails.genre}",
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
         Column(
@@ -116,7 +116,7 @@ fun MovieDetailsScreen(
         }
         Text(
             text = "Director: ${movieDetails.director}\nWriter: ${movieDetails.writer}",
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
     }
