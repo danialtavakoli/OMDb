@@ -2,6 +2,7 @@ package com.danialtavakoli.omdb.model.repository
 
 import com.danialtavakoli.omdb.model.data.Movie
 import com.danialtavakoli.omdb.model.data.MovieDetails
+import com.danialtavakoli.omdb.model.data.provideMockMovieDetails
 import com.danialtavakoli.omdb.model.db.MovieDao
 import com.danialtavakoli.omdb.model.net.ApiService
 import javax.inject.Inject
@@ -12,21 +13,27 @@ class MovieRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     private val movieDao: MovieDao,
 ) : MovieRepository {
-    override suspend fun getMoviesList(title: String, year: String?, type: String?): List<Movie> {
+    override suspend fun getMoviesList(
+        isInternetConnected: Boolean, title: String, year: String?, type: String?
+    ): List<Movie> {
         val localMovies = movieDao.getMoviesList(title = title, year = year, type = type)
-        return localMovies?.ifEmpty {
+        return if (localMovies?.isEmpty()!! && isInternetConnected) {
+            //get from net
             val remoteMovies = apiService.getMoviesList(title = title, year = year, type = type)
             if (remoteMovies.isSuccessful) {
                 val movies = remoteMovies.body()?.search ?: listOf()
                 movieDao.insertMovies(movies)
                 movies
             } else throw Exception(remoteMovies.errorBody()?.string() ?: "Unknown error occurred")
-        } ?: listOf()
+            //get from local
+        } else localMovies
     }
 
-    override suspend fun getMovieDetails(imdbId: String): MovieDetails {
+    override suspend fun getMovieDetails(
+        isInternetConnected: Boolean, imdbId: String
+    ): MovieDetails {
         val localMovieDetails = movieDao.getMovieDetails(imdbID = imdbId)
-        return if (localMovieDetails == null) {
+        return if (localMovieDetails == null && isInternetConnected) {
             val response = apiService.getMovieDetails(imdbID = imdbId)
             if (response.isSuccessful) {
                 val remoteMovieDetails =
@@ -34,6 +41,6 @@ class MovieRepositoryImpl @Inject constructor(
                 movieDao.insertMovieDetails(remoteMovieDetails)
                 remoteMovieDetails
             } else throw Exception(response.errorBody()?.string() ?: "Unknown error occurred")
-        } else localMovieDetails
+        } else localMovieDetails ?: provideMockMovieDetails()
     }
 }

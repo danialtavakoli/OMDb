@@ -5,10 +5,11 @@ import com.danialtavakoli.omdb.model.data.MovieDetails
 
 interface MovieRepository {
     suspend fun getMoviesList(
+        isInternetConnected: Boolean,
         title: String,
         year: String? = null,
         type: String? = null
     ): List<Movie>
 
-    suspend fun getMovieDetails(imdbId: String): MovieDetails
+    suspend fun getMovieDetails(isInternetConnected: Boolean, imdbId: String): MovieDetails
 }

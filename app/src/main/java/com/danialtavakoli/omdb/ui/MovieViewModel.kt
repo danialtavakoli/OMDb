@@ -20,16 +20,22 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
     private val _movieDetails = MutableStateFlow(provideMockMovieDetails())
     val movieDetails: StateFlow<MovieDetails> = _movieDetails
 
-    suspend fun fetchMovies(title: String, year: String? = null, type: String? = null) {
+    suspend fun fetchMovies(
+        isInternetConnected: Boolean, title: String, year: String? = null, type: String? = null
+    ) {
         viewModelScope.launch {
-            val moviesList = repository.getMoviesList(title = title, year = year, type = type)
+            val moviesList = repository.getMoviesList(
+                isInternetConnected = isInternetConnected, title = title, year = year, type = type
+            )
             _moviesList.value = moviesList
         }
     }
 
-    suspend fun fetchMovieDetails(imdbID: String) {
+    suspend fun fetchMovieDetails(isInternetConnected: Boolean, imdbID: String) {
         viewModelScope.launch {
-            val movieDetails = repository.getMovieDetails(imdbId = imdbID)
+            val movieDetails = repository.getMovieDetails(
+                isInternetConnected = isInternetConnected, imdbId = imdbID
+            )
             _movieDetails.value = movieDetails
         }
     }

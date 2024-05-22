@@ -43,7 +43,7 @@ fun MovieDetailsScreen(
 
     LaunchedEffect(key1 = Unit) {
         val isInternetConnected = NetworkChecker(context).isInternetConnected
-        viewModel.fetchMovieDetails(imdbID = imdbId)
+        viewModel.fetchMovieDetails(isInternetConnected = isInternetConnected, imdbID = imdbId)
         if (!isInternetConnected) context.showToast("Internet not connected!")
     }
 
