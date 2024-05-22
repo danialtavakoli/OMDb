@@ -1,3 +1,8 @@
+/**
+ * AppModule is a Dagger module responsible for providing application-level dependencies.
+ * It sets up instances of OkHttpClient, Retrofit, ApiService, MovieDatabase, and MovieDao.
+ */
+
 package com.danialtavakoli.omdb.di
 
 import android.content.Context
@@ -21,6 +26,11 @@ import javax.inject.Singleton
 @Module
 class AppModule {
 
+    /**
+     * Provides a singleton instance of OkHttpClient.
+     *
+     * @return an OkHttpClient with configured timeouts.
+     */
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
@@ -31,6 +41,12 @@ class AppModule {
             .build()
     }
 
+    /**
+     * Provides a singleton instance of Retrofit.
+     *
+     * @param okHttpClient the OkHttpClient to be used by Retrofit.
+     * @return a Retrofit instance configured with a base URL and Gson converter.
+     */
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
@@ -41,12 +57,24 @@ class AppModule {
             .build()
     }
 
+    /**
+     * Provides a singleton instance of ApiService.
+     *
+     * @param retrofit the Retrofit instance to create the ApiService.
+     * @return an ApiService instance for network operations.
+     */
     @Provides
     @Singleton
     fun provideApiService(retrofit: Retrofit): ApiService {
         return retrofit.create(ApiService::class.java)
     }
 
+    /**
+     * Provides a singleton instance of MovieDatabase.
+     *
+     * @param appContext the application context to create the Room database.
+     * @return a MovieDatabase instance.
+     */
     @Singleton
     @Provides
     fun provideMovieDatabase(@ApplicationContext appContext: Context): MovieDatabase {
@@ -57,6 +85,12 @@ class AppModule {
         ).build()
     }
 
+    /**
+     * Provides a singleton instance of MovieDao.
+     *
+     * @param database the MovieDatabase instance to retrieve the DAO.
+     * @return a MovieDao instance for database operations.
+     */
     @Singleton
     @Provides
     fun provideMovieDao(database: MovieDatabase): MovieDao {

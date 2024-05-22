@@ -55,6 +55,17 @@ import com.danialtavakoli.omdb.model.data.Movie
 import com.danialtavakoli.omdb.model.net.NetworkChecker
 import com.danialtavakoli.omdb.model.net.showToast
 
+
+/**
+ * MovieListScreen is a composable function responsible for displaying a list of movies.
+ * Users can search for movies using a search bar and apply filters based on year and type.
+ * It also provides an option to view movie details by clicking on a movie item.
+ *
+ * @param viewModel The view model responsible for managing movie list data.
+ * @param onItemClick A callback function triggered when a movie item is clicked.
+ * @param context The context of the MainActivity.
+ * @param modifier The modifier for the layout.
+ */
 @Composable
 fun MovieListScreen(
     viewModel: MovieViewModel,
@@ -120,6 +131,11 @@ fun MovieListScreen(
     }
 }
 
+
+/**
+ * EmptyListView is a composable function responsible for displaying an empty view
+ * when the movies list is empty.
+ */
 @Composable
 fun EmptyListView() {
     Column(
@@ -152,7 +168,13 @@ fun EmptyListView() {
     }
 }
 
-
+/**
+ * MovieListItem is a composable function responsible for displaying an individual movie item.
+ *
+ * @param movie The movie item to be displayed.
+ * @param onItemClick A callback function triggered when the movie item is clicked.
+ * @param modifier The modifier for the layout.
+ */
 @Composable
 fun MovieListItem(
     movie: Movie,
@@ -197,6 +219,16 @@ fun MovieListItem(
     }
 }
 
+/**
+ * SearchBar is a composable function responsible for displaying the search bar
+ * and filtering options.
+ *
+ * @param modifier The modifier for the layout.
+ * @param onSearch The callback function triggered when a new search query is entered.
+ * @param onFilterClick The callback function triggered when the filter button is clicked.
+ * @param onApplyFilter The callback function triggered when filters are applied.
+ * @param clearYear The callback function triggered when the year filter is cleared.
+ */
 @Composable
 fun SearchBar(
     modifier: Modifier = Modifier,
@@ -269,6 +301,19 @@ fun SearchBar(
     }
 }
 
+
+/**
+ * FilterSearchDialog is a composable function responsible for displaying the filter dialog
+ * for applying additional filters such as year and content type.
+ *
+ * @param minYear The minimum value for the year filter.
+ * @param maxYear The maximum value for the year filter.
+ * @param contentTypes The list of content types for filtering.
+ * @param selectedContentType The selected content type.
+ * @param onContentTypeSelected The callback function triggered when a content type is selected.
+ * @param onApplyFilter The callback function triggered when filters are applied.
+ * @param onDismiss The callback function triggered when the dialog is dismissed.
+ */
 @Composable
 fun FilterSearchDialog(
     minYear: Int,
@@ -330,6 +375,14 @@ fun FilterSearchDialog(
     )
 }
 
+/**
+ * DropdownMenuRow is a composable function responsible for displaying a row with a dropdown menu.
+ *
+ * @param label The label for the dropdown menu.
+ * @param options The list of options for the dropdown menu.
+ * @param selectedOption The selected option.
+ * @param onOptionSelected The callback function triggered when an option is selected.
+ */
 @Composable
 fun DropdownMenuRow(
     label: String,
@@ -383,6 +436,16 @@ fun DropdownMenuRow(
     }
 }
 
+
+/**
+ * SliderRow is a composable function responsible for displaying a row with a slider.
+ *
+ * @param label The label for the slider.
+ * @param minValue The minimum value for the slider.
+ * @param maxValue The maximum value for the slider.
+ * @param value The current value of the slider.
+ * @param onValueChange The callback function triggered when the slider value changes.
+ */
 @Composable
 fun SliderRow(
     label: String,

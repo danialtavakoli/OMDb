@@ -1,3 +1,9 @@
+/**
+ * Theme is a utility class that provides theming functionality for the application.
+ * It defines a composable function `OMDbTheme` that sets up the Material Design theme
+ * based on system theme preferences or a specified dark/light theme mode.
+ */
+
 package com.danialtavakoli.omdb.ui.theme
 
 import android.app.Activity
@@ -37,6 +43,13 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+/**
+ * Composable function that sets up the Material Design theme for the application.
+ *
+ * @param darkTheme a boolean value indicating whether the theme should be dark.
+ * @param dynamicColor a boolean value indicating whether dynamic color is enabled.
+ * @param content a lambda function representing the content of the theme.
+ */
 @Composable
 fun OMDbTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

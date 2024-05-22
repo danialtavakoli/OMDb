@@ -1,3 +1,7 @@
+/**
+ * Color is a utility class that defines color constants used in the application theme.
+ */
+
 package com.danialtavakoli.omdb.ui.theme
 
 import androidx.compose.ui.graphics.Color

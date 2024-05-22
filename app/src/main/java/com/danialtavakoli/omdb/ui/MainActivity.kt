@@ -1,3 +1,8 @@
+/**
+ * MainActivity is the entry point of the application.
+ * It sets up the main user interface and navigation using Jetpack Compose and Hilt.
+ */
+
 package com.danialtavakoli.omdb.ui
 
 import android.os.Bundle
@@ -15,9 +20,17 @@ import androidx.navigation.compose.rememberNavController
 import com.danialtavakoli.omdb.ui.theme.OMDbTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+
+/**
+ * MainActivity class responsible for handling the main entry point of the application.
+ */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+
+    /**
+     * Overrides the onCreate method to set up the content of the activity.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -32,6 +45,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
+    /**
+     * Composable function that defines the main screen of the application.
+     */
     @Composable
     fun MoviesScreen(modifier: Modifier = Modifier) {
         val navController = rememberNavController()

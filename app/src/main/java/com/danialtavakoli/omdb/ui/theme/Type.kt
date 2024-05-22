@@ -1,3 +1,8 @@
+/**
+ * Type is a utility class that defines typography styles used in the application.
+ * It provides a set of Material typography styles, including bodyLarge, to start with.
+ */
+
 package com.danialtavakoli.omdb.ui.theme
 
 import androidx.compose.material3.Typography

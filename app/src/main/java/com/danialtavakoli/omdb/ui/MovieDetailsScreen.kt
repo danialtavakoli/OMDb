@@ -1,3 +1,15 @@
+/**
+ * MovieDetailsScreen is a composable function responsible for displaying the details of a movie.
+ * It shows the movie's title, year, genre, poster, IMDb votes, director, and writer.
+ * Users can click on the poster to view it in full screen.
+ * If internet connectivity is not available, it shows a toast message indicating the same.
+ *
+ * @param viewModel The view model responsible for managing movie details data.
+ * @param imdbId The IMDb ID of the movie to fetch details for.
+ * @param context The context of the MainActivity.
+ * @param modifier The modifier for the layout.
+ */
+
 package com.danialtavakoli.omdb.ui
 
 import android.content.Intent

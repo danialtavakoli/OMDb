@@ -1,3 +1,11 @@
+/**
+ * MovieRepositoryImpl is an implementation of the MovieRepository interface.
+ * It provides methods for retrieving movie data from local databases and remote APIs.
+ *
+ * @property apiService an instance of ApiService used to make network requests.
+ * @property movieDao an instance of MovieDao used to perform database operations.
+ */
+
 package com.danialtavakoli.omdb.model.repository
 
 import com.danialtavakoli.omdb.model.data.Movie
@@ -13,6 +21,14 @@ class MovieRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     private val movieDao: MovieDao,
 ) : MovieRepository {
+
+    /**
+     * Retrieves a list of movies based on a search query.
+     *
+     * @param title the title of the movies to search for.
+     * @param isInternetConnected a flag indicating whether the device is connected to the internet.
+     * @return a list of movies matching the search criteria.
+     */
     override suspend fun getMoviesList(title: String, isInternetConnected: Boolean): List<Movie> {
         val localMovies = movieDao.getMoviesList(title = title)
         return if (localMovies?.isEmpty()!! && isInternetConnected) {
@@ -27,6 +43,14 @@ class MovieRepositoryImpl @Inject constructor(
         } else localMovies
     }
 
+
+    /**
+     * Retrieves detailed information about a movie based on its IMDb ID.
+     *
+     * @param imdbId the IMDb ID of the movie to retrieve details for.
+     * @param isInternetConnected a flag indicating whether the device is connected to the internet.
+     * @return detailed information about the movie.
+     */
     override suspend fun getMovieDetails(
         imdbId: String,
         isInternetConnected: Boolean,
@@ -44,6 +68,15 @@ class MovieRepositoryImpl @Inject constructor(
         else localMovieDetails ?: throw Exception("Local movie details not found")
     }
 
+
+    /**
+     * Retrieves a list of movies released in a specific year.
+     *
+     * @param title the title of the movies to search for (default value is "batman").
+     * @param isInternetConnected a flag indicating whether the device is connected to the internet.
+     * @param year the year of release of the movies to search for.
+     * @return a list of movies matching the search criteria.
+     */
     override suspend fun getMoviesListByYear(
         title: String,
         isInternetConnected: Boolean,
@@ -62,6 +95,15 @@ class MovieRepositoryImpl @Inject constructor(
         } else localMovies
     }
 
+
+    /**
+     * Retrieves a list of movies of a specific type.
+     *
+     * @param title the title of the movies to search for (default value is "batman").
+     * @param isInternetConnected a flag indicating whether the device is connected to the internet.
+     * @param type the type of the movies to search for (e.g., "movie", "series").
+     * @return a list of movies matching the search criteria.
+     */
     override suspend fun getMoviesListByType(
         title: String,
         isInternetConnected: Boolean,
@@ -80,6 +122,16 @@ class MovieRepositoryImpl @Inject constructor(
         } else localMovies
     }
 
+
+    /**
+     * Retrieves a list of movies released in a specific year and of a specific type.
+     *
+     * @param title the title of the movies to search for (default value is "batman").
+     * @param isInternetConnected a flag indicating whether the device is connected to the internet.
+     * @param year the year of release of the movies to search for.
+     * @param type the type of the movies to search for (e.g., "movie", "series").
+     * @return a list of movies matching the search criteria.
+     */
     override suspend fun getMoviesListByYearAndType(
         title: String,
         isInternetConnected: Boolean,
