@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -63,37 +64,20 @@ fun MovieListScreen(
     modifier: Modifier = Modifier,
 ) {
     var title by remember { mutableStateOf("") }
+    var year by remember { mutableStateOf<String?>(null) }
+    var type by remember { mutableStateOf<String?>(null) }
     val moviesList by viewModel.moviesList.collectAsState()
-    var year by remember { mutableStateOf("") }
-    var type by remember { mutableStateOf("") }
-    LaunchedEffect(title, moviesList, year, type) {
-        val isInternetConnected = NetworkChecker(context).isInternetConnected
-        if (year == "" && type == "")
-            viewModel.fetchMovies(
-                title = title, isInternetConnected = isInternetConnected
-            )
-        else if (type == "" && year.isNotEmpty())
-            viewModel.fetchMoviesByYear(
-                title = title,
-                isInternetConnected = isInternetConnected,
-                year = year
-            )
-        else if (type.isNotEmpty() && (year == "" || year == "1888"))
-            viewModel.fetchMoviesByType(
-                title = title,
-                isInternetConnected = isInternetConnected,
-                type = type
-            )
-        else {
-            viewModel.fetchMoviesByYearAndType(
-                title = title,
-                isInternetConnected = isInternetConnected,
-                year = year,
-                type = type
-            )
-        }
 
-        if (!isInternetConnected && moviesList.isEmpty()) context.showToast("Internet is not connected!")
+    LaunchedEffect(title, year, type) {
+        val isInternetConnected = NetworkChecker(context).isInternetConnected
+
+        if (!isInternetConnected && moviesList.isEmpty()) {
+            context.showToast("Internet is not connected!")
+        } else {
+            viewModel.fetchMovies(title = title, year = year, type = type)
+            year = null
+            type = null
+        }
     }
 
     Column(modifier = modifier) {
@@ -101,12 +85,9 @@ fun MovieListScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            onSearch = { newTitle ->
-                title = newTitle
-            },
-            onFilterClick = {},
-            onApplyFilter = { year = it.first;type = it.second },
-            clearYear = { year = "" }
+            onSearch = { title = it },
+            onApplyFilter = { year = it.first; type = it.second },
+            clearFilters = { year = null; type = null }
         )
         if (moviesList.isEmpty()) {
             EmptyListView()
@@ -151,7 +132,6 @@ fun EmptyListView() {
         )
     }
 }
-
 
 @Composable
 fun MovieListItem(
@@ -201,12 +181,12 @@ fun MovieListItem(
 fun SearchBar(
     modifier: Modifier = Modifier,
     onSearch: (String) -> Unit,
-    onFilterClick: () -> Unit,
     onApplyFilter: (Pair<String, String>) -> Unit,
-    clearYear: () -> Unit
+    clearFilters: () -> Unit
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue()) }
-    var isFilterDialogVisible by remember { mutableStateOf(false) } // State to control dialog visibility
+    var isFilterDialogVisible by remember { mutableStateOf(false) }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -231,40 +211,33 @@ fun SearchBar(
                         modifier = Modifier.size(24.dp),
                         tint = Color.Black
                     )
-
                     Text(text = "Search here...")
                 }
             },
         )
-        IconButton(onClick = {
-            isFilterDialogVisible = true
-            onFilterClick()
-        }) {
+        IconButton(onClick = { isFilterDialogVisible = true }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_filter),
                 contentDescription = "Filter",
                 modifier = Modifier.size(24.dp)
             )
         }
-
     }
+
     if (isFilterDialogVisible) {
         FilterSearchDialog(
-            // Pass necessary parameters and callbacks
             onDismiss = {
                 isFilterDialogVisible = false
-                clearYear()
+                clearFilters()
             },
             onApplyFilter = {
                 onApplyFilter(it)
                 isFilterDialogVisible = false
             },
-            // Pass initial values or current filter values here
             minYear = 1888,
             maxYear = 2024,
             contentTypes = listOf("movie", "series", "episode"),
-            selectedContentType = "",
-            onContentTypeSelected = {}
+            selectedContentType = ""
         )
     }
 }
@@ -273,17 +246,18 @@ fun SearchBar(
 fun FilterSearchDialog(
     minYear: Int,
     maxYear: Int,
-    contentTypes: List<String>, // List of content types
+    contentTypes: List<String>,
     selectedContentType: String,
-    onContentTypeSelected: (String) -> Unit,
     onApplyFilter: (Pair<String, String>) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var year by remember { mutableStateOf(minYear.toFloat()) }
+    var year by remember { mutableFloatStateOf(minYear.toFloat()) }
     var currentSelectedContentType by remember { mutableStateOf(selectedContentType) }
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = {
+            onDismiss()
+        },
         title = { Text("Filter Search") },
         text = {
             Column(
@@ -301,7 +275,6 @@ fun FilterSearchDialog(
                     selectedOption = currentSelectedContentType,
                     onOptionSelected = {
                         currentSelectedContentType = it
-                        onContentTypeSelected(it)
                     }
                 )
             }
@@ -312,7 +285,9 @@ fun FilterSearchDialog(
                 horizontalArrangement = Arrangement.End
             ) {
                 Button(
-                    onClick = onDismiss,
+                    onClick = {
+                        onDismiss()
+                    },
                     modifier = Modifier.padding(top = 16.dp),
                 ) {
                     Text("Cancel")
@@ -356,9 +331,7 @@ fun DropdownMenuRow(
                 readOnly = true,
                 modifier = Modifier.weight(1f)
             )
-            IconButton(
-                onClick = { expanded = !expanded }
-            ) {
+            IconButton(onClick = { expanded = !expanded }) {
                 Icon(
                     imageVector = Icons.Rounded.ArrowDropDown,
                     contentDescription = null
@@ -401,7 +374,7 @@ fun SliderRow(
         Slider(
             value = value,
             onValueChange = onValueChange,
-            valueRange = minValue..maxValue, // Set minimum and maximum values for the slider
+            valueRange = minValue..maxValue,
             steps = (maxValue - minValue).toInt(),
             modifier = Modifier.weight(1f)
         )

@@ -32,7 +32,6 @@ import coil.compose.AsyncImage
 import com.danialtavakoli.omdb.model.net.NetworkChecker
 import com.danialtavakoli.omdb.model.net.showToast
 
-
 @Composable
 fun MovieDetailsScreen(
     viewModel: MovieViewModel,
@@ -44,13 +43,11 @@ fun MovieDetailsScreen(
 
     LaunchedEffect(key1 = Unit) {
         val isInternetConnected = NetworkChecker(context).isInternetConnected
-        viewModel.fetchMovieDetails(
-            imdbID = imdbId, isInternetConnected = isInternetConnected
-        )
+        viewModel.fetchMovieDetails(imdbID = imdbId)
         if (!isInternetConnected) context.showToast("Internet not connected!")
     }
 
-    if (!NetworkChecker(context).isInternetConnected && movieDetails.imdbID == "") return
+    if (!NetworkChecker(context).isInternetConnected && movieDetails.imdbID.isEmpty()) return
 
     val gradient = Brush.linearGradient(
         colors = listOf(Color.White, MaterialTheme.colorScheme.primary),
@@ -74,11 +71,11 @@ fun MovieDetailsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp)
-                .clip(shape = RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(8.dp))
                 .clickable {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(movieDetails.poster))
                     context.startActivity(intent)
-                },
+                }
         )
         Text(
             text = movieDetails.title,

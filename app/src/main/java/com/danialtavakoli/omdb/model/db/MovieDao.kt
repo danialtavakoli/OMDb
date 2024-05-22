@@ -9,8 +9,18 @@ import com.danialtavakoli.omdb.model.data.MovieDetails
 
 @Dao
 interface MovieDao {
-    @Query("SELECT * FROM movieTable WHERE title LIKE '%' || :title || '%'")
-    suspend fun getMoviesList(title: String): List<Movie>?
+
+    @Query(
+        """
+        SELECT * FROM movieTable
+        WHERE title LIKE '%' || :title || '%'
+        AND (:year IS NULL OR year = :year)
+        AND (:type IS NULL OR type = :type)
+    """
+    )
+    suspend fun getMoviesList(
+        title: String, year: String? = null, type: String? = null
+    ): List<Movie>?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMovies(movies: List<Movie>)
@@ -20,14 +30,4 @@ interface MovieDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMovieDetails(movieDetails: MovieDetails)
-
-    @Query("SELECT * FROM movieTable WHERE title LIKE '%' || :title || '%' AND  year = :year")
-    suspend fun getMoviesListByYear(title: String, year: String): List<Movie>?
-
-    @Query("SELECT * FROM movieTable WHERE title LIKE '%' || :title || '%' AND  type = :type")
-    suspend fun getMoviesListByType(title: String, type: String): List<Movie>?
-
-    @Query("SELECT * FROM movieTable WHERE title LIKE '%' || :title || '%' AND  year = :year AND type = :type")
-    suspend fun getMoviesListByYearAndType(title: String, year: String, type: String): List<Movie>?
-
 }

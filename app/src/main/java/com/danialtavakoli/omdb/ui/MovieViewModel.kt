@@ -20,63 +20,17 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
     private val _movieDetails = MutableStateFlow(provideMockMovieDetails())
     val movieDetails: StateFlow<MovieDetails> = _movieDetails
 
-    suspend fun fetchMovies(title: String, isInternetConnected: Boolean) {
+    suspend fun fetchMovies(title: String, year: String? = null, type: String? = null) {
         viewModelScope.launch {
-            val moviesList =
-                repository.getMoviesList(title = title, isInternetConnected = isInternetConnected)
+            val moviesList = repository.getMoviesList(title = title, year = year, type = type)
             _moviesList.value = moviesList
         }
     }
 
-    suspend fun fetchMoviesByYear(title: String, isInternetConnected: Boolean, year: String) {
+    suspend fun fetchMovieDetails(imdbID: String) {
         viewModelScope.launch {
-            val moviesList =
-                repository.getMoviesListByYear(
-                    title = title,
-                    isInternetConnected = isInternetConnected,
-                    year = year
-                )
-            _moviesList.value = moviesList
-        }
-    }
-
-    suspend fun fetchMoviesByType(title: String, isInternetConnected: Boolean, type: String) {
-        viewModelScope.launch {
-            val moviesList =
-                repository.getMoviesListByType(
-                    title = title,
-                    isInternetConnected = isInternetConnected,
-                    type = type
-                )
-            _moviesList.value = moviesList
-        }
-    }
-
-    suspend fun fetchMoviesByYearAndType(
-        title: String,
-        isInternetConnected: Boolean,
-        type: String,
-        year: String
-    ) {
-        viewModelScope.launch {
-            val moviesList =
-                repository.getMoviesListByYearAndType(
-                    title = title,
-                    isInternetConnected = isInternetConnected,
-                    year = year,
-                    type = type
-                )
-            _moviesList.value = moviesList
-        }
-    }
-
-    suspend fun fetchMovieDetails(imdbID: String, isInternetConnected: Boolean) {
-        viewModelScope.launch {
-            val movieDetails = repository.getMovieDetails(
-                imdbId = imdbID, isInternetConnected = isInternetConnected,
-            )
+            val movieDetails = repository.getMovieDetails(imdbId = imdbID)
             _movieDetails.value = movieDetails
         }
     }
-
 }
