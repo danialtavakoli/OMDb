@@ -22,13 +22,22 @@ interface ApiService {
     @GET("/")
     suspend fun getMoviesListByYear(
         @Query("apikey") apiKey: String = API_KEY,
-        @Query("s") title: String="batman",
+        @Query("s") title: String = "batman",
         @Query("y") year: String,
     ): Response<MovieSearch>
+
     @GET("/")
     suspend fun getMoviesListByType(
         @Query("apikey") apiKey: String = API_KEY,
-        @Query("s") title: String="batman",
+        @Query("s") title: String = "batman",
+        @Query("type") type: String,
+    ): Response<MovieSearch>
+
+    @GET("/")
+    suspend fun getMoviesListByYearAndType(
+        @Query("apikey") apiKey: String = API_KEY,
+        @Query("s") title: String = "batman",
+        @Query("y") year: String,
         @Query("type") type: String,
     ): Response<MovieSearch>
 

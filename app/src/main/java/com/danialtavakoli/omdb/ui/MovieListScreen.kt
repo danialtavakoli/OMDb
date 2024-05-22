@@ -66,36 +66,31 @@ fun MovieListScreen(
     val moviesList by viewModel.moviesList.collectAsState()
     var year by remember { mutableStateOf("") }
     var type by remember { mutableStateOf("") }
-    LaunchedEffect(title, moviesList, year,type) {
+    LaunchedEffect(title, moviesList, year, type) {
         val isInternetConnected = NetworkChecker(context).isInternetConnected
-        if (year=="" && type=="")
+        if (year == "" && type == "")
             viewModel.fetchMovies(
                 title = title, isInternetConnected = isInternetConnected
             )
-        else if(type=="" && year.isNotEmpty())
+        else if (type == "" && year.isNotEmpty())
             viewModel.fetchMoviesByYear(
                 title = title,
                 isInternetConnected = isInternetConnected,
                 year = year
             )
-        else if(type.isNotEmpty() && (year=="" || year=="1888"))
+        else if (type.isNotEmpty() && (year == "" || year == "1888"))
             viewModel.fetchMoviesByType(
                 title = title,
                 isInternetConnected = isInternetConnected,
                 type = type
             )
         else {
-            viewModel.fetchMoviesByYear(
+            viewModel.fetchMoviesByYearAndType(
                 title = title,
                 isInternetConnected = isInternetConnected,
                 year = year,
+                type = type
             )
-            viewModel.fetchMoviesByType(
-                title = title,
-                isInternetConnected = isInternetConnected,
-                type = type,
-            )
-
         }
 
         if (!isInternetConnected && moviesList.isEmpty()) context.showToast("Internet is not connected!")
@@ -110,8 +105,8 @@ fun MovieListScreen(
                 title = newTitle
             },
             onFilterClick = {},
-            onApplyFilter = { year = it.first ;type = it.second },
-            clearYear = {year=""}
+            onApplyFilter = { year = it.first;type = it.second },
+            clearYear = { year = "" }
         )
         if (moviesList.isEmpty()) {
             EmptyListView()
@@ -207,8 +202,8 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     onSearch: (String) -> Unit,
     onFilterClick: () -> Unit,
-    onApplyFilter: (Pair<String,String>) -> Unit,
-    clearYear:()->Unit
+    onApplyFilter: (Pair<String, String>) -> Unit,
+    clearYear: () -> Unit
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue()) }
     var isFilterDialogVisible by remember { mutableStateOf(false) } // State to control dialog visibility
@@ -256,8 +251,10 @@ fun SearchBar(
     if (isFilterDialogVisible) {
         FilterSearchDialog(
             // Pass necessary parameters and callbacks
-            onDismiss = { isFilterDialogVisible = false
-                clearYear()},
+            onDismiss = {
+                isFilterDialogVisible = false
+                clearYear()
+            },
             onApplyFilter = {
                 onApplyFilter(it)
                 isFilterDialogVisible = false
@@ -265,12 +262,13 @@ fun SearchBar(
             // Pass initial values or current filter values here
             minYear = 1888,
             maxYear = 2024,
-            contentTypes = listOf("movie","series","episode"),
+            contentTypes = listOf("movie", "series", "episode"),
             selectedContentType = "",
             onContentTypeSelected = {}
         )
     }
 }
+
 @Composable
 fun FilterSearchDialog(
     minYear: Int,
@@ -278,7 +276,7 @@ fun FilterSearchDialog(
     contentTypes: List<String>, // List of content types
     selectedContentType: String,
     onContentTypeSelected: (String) -> Unit,
-    onApplyFilter: (Pair<String,String>) -> Unit,
+    onApplyFilter: (Pair<String, String>) -> Unit,
     onDismiss: () -> Unit
 ) {
     var year by remember { mutableStateOf(minYear.toFloat()) }
@@ -331,6 +329,7 @@ fun FilterSearchDialog(
         }
     )
 }
+
 @Composable
 fun DropdownMenuRow(
     label: String,
@@ -372,7 +371,7 @@ fun DropdownMenuRow(
         ) {
             options.forEach { option ->
                 DropdownMenuItem(
-                    text = {Text(text = option)},
+                    text = { Text(text = option) },
                     onClick = {
                         currentSelectedOption = option
                         onOptionSelected(option)
@@ -383,6 +382,7 @@ fun DropdownMenuRow(
         }
     }
 }
+
 @Composable
 fun SliderRow(
     label: String,
