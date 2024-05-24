@@ -6,7 +6,6 @@
 package com.danialtavakoli.omdb.model.data
 
 import androidx.room.Entity
-import androidx.room.vo.Entity
 import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "movieDetailsTable", primaryKeys = ["imdbID"])
