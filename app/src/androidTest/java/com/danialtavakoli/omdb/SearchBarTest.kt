@@ -21,9 +21,8 @@ class SearchBarTest {
         composeTestRule.setContent {
             SearchBar(
                 onSearch = { searchText = it },
-                onFilterClick = {},
                 onApplyFilter = {},
-                clearYear = {}
+                clearFilters = {},
             )
         }
 
