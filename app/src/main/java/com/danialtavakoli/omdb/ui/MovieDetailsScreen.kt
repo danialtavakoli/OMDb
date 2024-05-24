@@ -39,11 +39,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.danialtavakoli.omdb.model.net.NetworkChecker
 import com.danialtavakoli.omdb.model.net.showToast
-
 
 @Composable
 fun MovieDetailsScreen(
@@ -56,13 +56,11 @@ fun MovieDetailsScreen(
 
     LaunchedEffect(key1 = Unit) {
         val isInternetConnected = NetworkChecker(context).isInternetConnected
-        viewModel.fetchMovieDetails(
-            imdbID = imdbId, isInternetConnected = isInternetConnected
-        )
+        viewModel.fetchMovieDetails(isInternetConnected = isInternetConnected, imdbID = imdbId)
         if (!isInternetConnected) context.showToast("Internet not connected!")
     }
 
-    if (!NetworkChecker(context).isInternetConnected && movieDetails.imdbID == "") return
+    if (!NetworkChecker(context).isInternetConnected && movieDetails.imdbID.isEmpty()) return
 
     val gradient = Brush.linearGradient(
         colors = listOf(Color.White, MaterialTheme.colorScheme.primary),
@@ -76,7 +74,7 @@ fun MovieDetailsScreen(
             .background(gradient)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(32.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Spacer(modifier = Modifier.height(8.dp))
         AsyncImage(
@@ -86,11 +84,11 @@ fun MovieDetailsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp)
-                .clip(shape = RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(8.dp))
                 .clickable {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(movieDetails.poster))
                     context.startActivity(intent)
-                },
+                }
         )
         Text(
             text = movieDetails.title,
@@ -129,7 +127,9 @@ fun MovieDetailsScreen(
         Text(
             text = "Director: ${movieDetails.director}\nWriter: ${movieDetails.writer}",
             style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

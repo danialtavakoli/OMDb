@@ -76,4 +76,9 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    companion object {
+        const val MIN_YEAR = 1888
+        const val MAX_YEAR = 2024
+    }
 }

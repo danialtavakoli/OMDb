@@ -1,5 +1,6 @@
 package com.danialtavakoli.omdb.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -55,17 +57,6 @@ import com.danialtavakoli.omdb.model.data.Movie
 import com.danialtavakoli.omdb.model.net.NetworkChecker
 import com.danialtavakoli.omdb.model.net.showToast
 
-
-/**
- * MovieListScreen is a composable function responsible for displaying a list of movies.
- * Users can search for movies using a search bar and apply filters based on year and type.
- * It also provides an option to view movie details by clicking on a movie item.
- *
- * @param viewModel The view model responsible for managing movie list data.
- * @param onItemClick A callback function triggered when a movie item is clicked.
- * @param context The context of the MainActivity.
- * @param modifier The modifier for the layout.
- */
 @Composable
 fun MovieListScreen(
     viewModel: MovieViewModel,
@@ -74,51 +65,30 @@ fun MovieListScreen(
     modifier: Modifier = Modifier,
 ) {
     var title by remember { mutableStateOf("") }
+    var year by remember { mutableStateOf<String?>(null) }
+    var type by remember { mutableStateOf<String?>(null) }
     val moviesList by viewModel.moviesList.collectAsState()
-    var year by remember { mutableStateOf("") }
-    var type by remember { mutableStateOf("") }
-    LaunchedEffect(title, moviesList, year, type) {
-        val isInternetConnected = NetworkChecker(context).isInternetConnected
-        if (year == "" && type == "")
-            viewModel.fetchMovies(
-                title = title, isInternetConnected = isInternetConnected
-            )
-        else if (type == "" && year.isNotEmpty())
-            viewModel.fetchMoviesByYear(
-                title = title,
-                isInternetConnected = isInternetConnected,
-                year = year
-            )
-        else if (type.isNotEmpty() && (year == "" || year == "1888"))
-            viewModel.fetchMoviesByType(
-                title = title,
-                isInternetConnected = isInternetConnected,
-                type = type
-            )
-        else {
-            viewModel.fetchMoviesByYearAndType(
-                title = title,
-                isInternetConnected = isInternetConnected,
-                year = year,
-                type = type
-            )
-        }
 
-        if (!isInternetConnected && moviesList.isEmpty()) context.showToast("Internet is not connected!")
+    LaunchedEffect(title, year, type) {
+        val isInternetConnected = NetworkChecker(context).isInternetConnected
+        if (year == MainActivity.MIN_YEAR.toString()) year = null
+        viewModel.fetchMovies(
+            isInternetConnected = isInternetConnected,
+            title = title,
+            year = year,
+            type = type
+        )
+        if (!isInternetConnected) context.showToast("Internet not connected!")
+        Log.v("tagX", "title: $title / year: $year / type: $type")
     }
 
     Column(modifier = modifier) {
-        SearchBar(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            onSearch = { newTitle ->
-                title = newTitle
-            },
-            onFilterClick = {},
-            onApplyFilter = { year = it.first;type = it.second },
-            clearYear = { year = "" }
-        )
+        SearchBar(modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+            onSearch = { title = it },
+            onApplyFilter = { year = it.first; type = it.second },
+            clearFilters = { year = null; type = null })
         if (moviesList.isEmpty()) {
             EmptyListView()
         } else {
@@ -131,11 +101,6 @@ fun MovieListScreen(
     }
 }
 
-
-/**
- * EmptyListView is a composable function responsible for displaying an empty view
- * when the movies list is empty.
- */
 @Composable
 fun EmptyListView() {
     Column(
@@ -168,13 +133,6 @@ fun EmptyListView() {
     }
 }
 
-/**
- * MovieListItem is a composable function responsible for displaying an individual movie item.
- *
- * @param movie The movie item to be displayed.
- * @param onItemClick A callback function triggered when the movie item is clicked.
- * @param modifier The modifier for the layout.
- */
 @Composable
 fun MovieListItem(
     movie: Movie,
@@ -219,26 +177,16 @@ fun MovieListItem(
     }
 }
 
-/**
- * SearchBar is a composable function responsible for displaying the search bar
- * and filtering options.
- *
- * @param modifier The modifier for the layout.
- * @param onSearch The callback function triggered when a new search query is entered.
- * @param onFilterClick The callback function triggered when the filter button is clicked.
- * @param onApplyFilter The callback function triggered when filters are applied.
- * @param clearYear The callback function triggered when the year filter is cleared.
- */
 @Composable
 fun SearchBar(
     modifier: Modifier = Modifier,
     onSearch: (String) -> Unit,
-    onFilterClick: () -> Unit,
     onApplyFilter: (Pair<String, String>) -> Unit,
-    clearYear: () -> Unit
+    clearFilters: () -> Unit
 ) {
     var searchText by remember { mutableStateOf(TextFieldValue()) }
-    var isFilterDialogVisible by remember { mutableStateOf(false) } // State to control dialog visibility
+    var isFilterDialogVisible by remember { mutableStateOf(false) }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -263,132 +211,100 @@ fun SearchBar(
                         modifier = Modifier.size(24.dp),
                         tint = Color.Black
                     )
-
                     Text(text = "Search here...")
                 }
             },
         )
-        IconButton(onClick = {
-            isFilterDialogVisible = true
-            onFilterClick()
-        }) {
+        IconButton(onClick = { isFilterDialogVisible = true }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_filter),
                 contentDescription = "Filter",
                 modifier = Modifier.size(24.dp)
             )
         }
-
     }
+
     if (isFilterDialogVisible) {
         FilterSearchDialog(
-            // Pass necessary parameters and callbacks
             onDismiss = {
                 isFilterDialogVisible = false
-                clearYear()
+                clearFilters()
             },
             onApplyFilter = {
                 onApplyFilter(it)
                 isFilterDialogVisible = false
             },
-            // Pass initial values or current filter values here
-            minYear = 1888,
-            maxYear = 2024,
+            minYear = MainActivity.MIN_YEAR,
+            maxYear = MainActivity.MAX_YEAR,
             contentTypes = listOf("movie", "series", "episode"),
-            selectedContentType = "",
-            onContentTypeSelected = {}
+            selectedContentType = ""
         )
     }
 }
 
-
-/**
- * FilterSearchDialog is a composable function responsible for displaying the filter dialog
- * for applying additional filters such as year and content type.
- *
- * @param minYear The minimum value for the year filter.
- * @param maxYear The maximum value for the year filter.
- * @param contentTypes The list of content types for filtering.
- * @param selectedContentType The selected content type.
- * @param onContentTypeSelected The callback function triggered when a content type is selected.
- * @param onApplyFilter The callback function triggered when filters are applied.
- * @param onDismiss The callback function triggered when the dialog is dismissed.
- */
 @Composable
 fun FilterSearchDialog(
     minYear: Int,
     maxYear: Int,
-    contentTypes: List<String>, // List of content types
+    contentTypes: List<String>,
     selectedContentType: String,
-    onContentTypeSelected: (String) -> Unit,
     onApplyFilter: (Pair<String, String>) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var year by remember { mutableStateOf(minYear.toFloat()) }
+    var year by remember { mutableFloatStateOf(minYear.toFloat()) }
     var currentSelectedContentType by remember { mutableStateOf(selectedContentType) }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Filter Search") },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
+    AlertDialog(onDismissRequest = {
+        onDismiss()
+    }, title = { Text("Filter Search") }, text = {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            SliderRow(
+                "Year",
+                minYear.toFloat(),
+                maxYear.toFloat(),
+                year,
+                onValueChange = { year = it },
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            DropdownMenuRow(
+                label = "Content Type",
+                options = contentTypes,
+                selectedOption = currentSelectedContentType,
+                onOptionSelected = {
+                    currentSelectedContentType = it
+                },
+            )
+        }
+    }, confirmButton = {
+        Row(
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End
+        ) {
+            Button(
+                onClick = {
+                    onDismiss()
+                },
+                modifier = Modifier.padding(top = 16.dp),
             ) {
-                SliderRow("Year", minYear.toFloat(), maxYear.toFloat(), year) { value ->
-                    year = value
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                DropdownMenuRow(
-                    label = "Content Type",
-                    options = contentTypes,
-                    selectedOption = currentSelectedContentType,
-                    onOptionSelected = {
-                        currentSelectedContentType = it
-                        onContentTypeSelected(it)
-                    }
-                )
+                Text("Cancel")
             }
-        },
-        confirmButton = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+            Button(
+                onClick = {
+                    onApplyFilter(Pair(year.toInt().toString(), currentSelectedContentType))
+                }, modifier = Modifier.padding(top = 16.dp)
             ) {
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier.padding(top = 16.dp),
-                ) {
-                    Text("Cancel")
-                }
-                Button(
-                    onClick = {
-                        onApplyFilter(Pair(year.toInt().toString(), currentSelectedContentType))
-                    },
-                    modifier = Modifier.padding(top = 16.dp)
-                ) {
-                    Text("Apply Filter")
-                }
+                Text("Apply Filter")
             }
         }
-    )
+    })
 }
 
-/**
- * DropdownMenuRow is a composable function responsible for displaying a row with a dropdown menu.
- *
- * @param label The label for the dropdown menu.
- * @param options The list of options for the dropdown menu.
- * @param selectedOption The selected option.
- * @param onOptionSelected The callback function triggered when an option is selected.
- */
 @Composable
 fun DropdownMenuRow(
-    label: String,
-    options: List<String>,
-    selectedOption: String,
-    onOptionSelected: (String) -> Unit
+    label: String, options: List<String>, selectedOption: String, onOptionSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     var currentSelectedOption by remember { mutableStateOf(selectedOption) }
@@ -409,50 +325,27 @@ fun DropdownMenuRow(
                 readOnly = true,
                 modifier = Modifier.weight(1f)
             )
-            IconButton(
-                onClick = { expanded = !expanded }
-            ) {
+            IconButton(onClick = { expanded = !expanded }) {
                 Icon(
-                    imageVector = Icons.Rounded.ArrowDropDown,
-                    contentDescription = null
+                    imageVector = Icons.Rounded.ArrowDropDown, contentDescription = null
                 )
             }
         }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(text = option) },
-                    onClick = {
-                        currentSelectedOption = option
-                        onOptionSelected(option)
-                        expanded = false
-                    }
-                )
+                DropdownMenuItem(text = { Text(text = option) }, onClick = {
+                    currentSelectedOption = option
+                    onOptionSelected(option)
+                    expanded = false
+                })
             }
         }
     }
 }
 
-
-/**
- * SliderRow is a composable function responsible for displaying a row with a slider.
- *
- * @param label The label for the slider.
- * @param minValue The minimum value for the slider.
- * @param maxValue The maximum value for the slider.
- * @param value The current value of the slider.
- * @param onValueChange The callback function triggered when the slider value changes.
- */
 @Composable
 fun SliderRow(
-    label: String,
-    minValue: Float,
-    maxValue: Float,
-    value: Float,
-    onValueChange: (Float) -> Unit
+    label: String, minValue: Float, maxValue: Float, value: Float, onValueChange: (Float) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -464,7 +357,7 @@ fun SliderRow(
         Slider(
             value = value,
             onValueChange = onValueChange,
-            valueRange = minValue..maxValue, // Set minimum and maximum values for the slider
+            valueRange = minValue..maxValue,
             steps = (maxValue - minValue).toInt(),
             modifier = Modifier.weight(1f)
         )
