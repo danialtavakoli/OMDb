@@ -57,6 +57,17 @@ import com.danialtavakoli.omdb.model.data.Movie
 import com.danialtavakoli.omdb.model.net.NetworkChecker
 import com.danialtavakoli.omdb.model.net.showToast
 
+
+/**
+ * MovieListScreen is a composable function that displays a list of movies.
+ * It includes a search bar for filtering movies by title, year, and type.
+ * If the list is empty, it shows an empty list view with a message.
+ *
+ * @param viewModel The view model responsible for managing the movie list data.
+ * @param onItemClick A lambda function invoked when a movie item is clicked, providing the IMDb ID of the clicked movie.
+ * @param context The context of the MainActivity.
+ * @param modifier The modifier for the layout.
+ */
 @Composable
 fun MovieListScreen(
     viewModel: MovieViewModel,
@@ -101,6 +112,10 @@ fun MovieListScreen(
     }
 }
 
+
+/**
+ * EmptyListView is a composable function that displays a message when the movie list is empty.
+ */
 @Composable
 fun EmptyListView() {
     Column(
@@ -133,6 +148,14 @@ fun EmptyListView() {
     }
 }
 
+
+/**
+ * MovieListItem is a composable function that displays an individual movie item.
+ *
+ * @param movie The movie data to display.
+ * @param onItemClick A lambda function invoked when the movie item is clicked, providing the IMDb ID of the clicked movie.
+ * @param modifier The modifier for the layout.
+ */
 @Composable
 fun MovieListItem(
     movie: Movie,
@@ -177,6 +200,15 @@ fun MovieListItem(
     }
 }
 
+
+/**
+ * SearchBar is a composable function that displays a search bar with an optional filter dialog.
+ *
+ * @param modifier The modifier for the layout.
+ * @param onSearch A lambda function invoked when the search text changes.
+ * @param onApplyFilter A lambda function invoked when the filter is applied.
+ * @param clearFilters A lambda function invoked to clear the applied filters.
+ */
 @Composable
 fun SearchBar(
     modifier: Modifier = Modifier,
@@ -242,6 +274,17 @@ fun SearchBar(
     }
 }
 
+
+/**
+ * FilterSearchDialog is a composable function that displays a dialog for filtering search results by year and content type.
+ *
+ * @param minYear The minimum year value for the slider.
+ * @param maxYear The maximum year value for the slider.
+ * @param contentTypes A list of content types to choose from.
+ * @param selectedContentType The currently selected content type.
+ * @param onApplyFilter A lambda function invoked when the filter is applied.
+ * @param onDismiss A lambda function invoked when the dialog is dismissed.
+ */
 @Composable
 fun FilterSearchDialog(
     minYear: Int,
@@ -302,6 +345,15 @@ fun FilterSearchDialog(
     })
 }
 
+
+/**
+ * DropdownMenuRow is a composable function that displays a dropdown menu for selecting an option from a list.
+ *
+ * @param label The label for the dropdown menu.
+ * @param options A list of options to choose from.
+ * @param selectedOption The currently selected option.
+ * @param onOptionSelected A lambda function invoked when an option is selected.
+ */
 @Composable
 fun DropdownMenuRow(
     label: String, options: List<String>, selectedOption: String, onOptionSelected: (String) -> Unit
@@ -343,6 +395,16 @@ fun DropdownMenuRow(
     }
 }
 
+
+/**
+ * SliderRow is a composable function that displays a slider for selecting a value within a range.
+ *
+ * @param label The label for the slider.
+ * @param minValue The minimum value of the slider.
+ * @param maxValue The maximum value of the slider.
+ * @param value The current value of the slider.
+ * @param onValueChange A lambda function invoked when the slider value changes.
+ */
 @Composable
 fun SliderRow(
     label: String, minValue: Float, maxValue: Float, value: Float, onValueChange: (Float) -> Unit

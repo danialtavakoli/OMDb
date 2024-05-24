@@ -8,11 +8,34 @@ import com.danialtavakoli.omdb.model.net.ApiService
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Implementation of the [MovieRepository] interface.
+ *
+ * This class provides methods to fetch movie data from a local database or a remote API,
+ * depending on the availability of an internet connection.
+ *
+ * @property apiService The API service used to fetch data from the OMDB API.
+ * @property movieDao The DAO used to interact with the local movie database.
+ */
 @Singleton
 class MovieRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     private val movieDao: MovieDao,
 ) : MovieRepository {
+
+    /**
+     * Retrieves a list of movies that match the specified title, year, and type.
+     *
+     * If the device is connected to the internet and no local data is found, it fetches data from the OMDB API.
+     * The fetched data is then saved to the local database.
+     *
+     * @param isInternetConnected A boolean indicating if the device is connected to the internet.
+     * @param title The title of the movies to search for. This is a required parameter.
+     * @param year The year of the movies to search for. This is an optional parameter.
+     * @param type The type of the movies to search for. This is an optional parameter.
+     * @return A list of movies that match the search criteria.
+     * @throws Exception If the remote API request fails.
+     */
     override suspend fun getMoviesList(
         isInternetConnected: Boolean, title: String, year: String?, type: String?
     ): List<Movie> {
@@ -29,6 +52,18 @@ class MovieRepositoryImpl @Inject constructor(
         } else localMovies
     }
 
+
+    /**
+     * Retrieves the details of a movie by its IMDb ID.
+     *
+     * If the device is connected to the internet and no local data is found, it fetches data from the OMDB API.
+     * The fetched data is then saved to the local database.
+     *
+     * @param isInternetConnected A boolean indicating if the device is connected to the internet.
+     * @param imdbId The IMDb ID of the movie to retrieve details for. This is a required parameter.
+     * @return The details of the movie with the specified IMDb ID.
+     * @throws Exception If the remote API request fails or the movie details are not found.
+     */
     override suspend fun getMovieDetails(
         isInternetConnected: Boolean, imdbId: String
     ): MovieDetails {

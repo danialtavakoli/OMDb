@@ -11,6 +11,10 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 
+/**
+ * NetworkCheckerTest is a test class designed to verify the functionality of the NetworkChecker class.
+ * It includes test methods to validate the behavior of the isInternetConnected function under different network conditions.
+ */
 class NetworkCheckerTest {
 
     private lateinit var context: Context
@@ -18,6 +22,10 @@ class NetworkCheckerTest {
     private lateinit var network: Network
     private lateinit var networkCapabilities: NetworkCapabilities
 
+
+    /**
+     * Setup method to initialize the required mock objects before each test.
+     */
     @Before
     fun setUp() {
         context = Mockito.mock(Context::class.java)
@@ -29,6 +37,10 @@ class NetworkCheckerTest {
             .thenReturn(connectivityManager)
     }
 
+
+    /**
+     * Test method to verify the behavior of isInternetConnected when connected to a Wi-Fi network.
+     */
     @Test
     fun testIsInternetConnected_wifi() {
         Mockito.`when`(connectivityManager.activeNetwork).thenReturn(network)
@@ -53,6 +65,10 @@ class NetworkCheckerTest {
         assertTrue(networkChecker.isInternetConnected)
     }
 
+
+    /**
+     * Test method to verify the behavior of isInternetConnected when connected to a cellular network.
+     */
     @Test
     fun testIsInternetConnected_noConnection() {
         Mockito.`when`(connectivityManager.activeNetwork).thenReturn(null)

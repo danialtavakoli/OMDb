@@ -17,12 +17,23 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
+
+/**
+ * MovieDaoTest is an instrumentation test class to test the functionality of MovieDao.
+ * It tests the insertion and retrieval of movies and movie details from the database.
+ *
+ * @see [testing documentation](http://d.android.com/tools/testing) Official documentation for Android testing.
+ */
 @RunWith(AndroidJUnit4::class)
 class MovieDaoTest {
 
     private lateinit var db: MovieDatabase
     private lateinit var movieDao: MovieDao
 
+
+    /**
+     * Creates an in-memory MovieDatabase instance before each test.
+     */
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -30,11 +41,19 @@ class MovieDaoTest {
         movieDao = db.movieDao()
     }
 
+
+    /**
+     * Closes the MovieDatabase instance after each test.
+     */
     @After
     fun closeDb() {
         db.close()
     }
 
+
+    /**
+     * Test method to verify the insertion and retrieval of movies from the database.
+     */
     @Test
     fun testInsertAndGetMovies() = runBlocking {
         val movie =
@@ -47,6 +66,10 @@ class MovieDaoTest {
         assertEquals("Inception", movies?.get(0)?.title)
     }
 
+
+    /**
+     * Test method to verify the insertion and retrieval of movie details from the database.
+     */
     @Test
     fun testInsertAndGetMovieDetails() = runBlocking {
         val movieDetails = MovieDetails(

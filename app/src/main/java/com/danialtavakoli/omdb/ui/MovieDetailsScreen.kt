@@ -9,7 +9,6 @@
  * @param context The context of the MainActivity.
  * @param modifier The modifier for the layout.
  */
-
 package com.danialtavakoli.omdb.ui
 
 import android.content.Intent

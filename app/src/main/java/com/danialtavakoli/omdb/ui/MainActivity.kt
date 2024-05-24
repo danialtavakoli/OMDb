@@ -29,7 +29,11 @@ class MainActivity : ComponentActivity() {
 
 
     /**
-     * Overrides the onCreate method to set up the content of the activity.
+     * Called when the activity is starting. This is where most initialization should go.
+     * It sets up the content view using Jetpack Compose.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down
+     *                           then this Bundle contains the data it most recently supplied in [onSaveInstanceState].
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +52,9 @@ class MainActivity : ComponentActivity() {
 
     /**
      * Composable function that defines the main screen of the application.
+     * It sets up the navigation structure using [NavHost].
+     *
+     * @param modifier A [Modifier] for this composable.
      */
     @Composable
     fun MoviesScreen(modifier: Modifier = Modifier) {
@@ -78,7 +85,15 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
+        /**
+         * The minimum year value for movie searches.
+         */
+
         const val MIN_YEAR = 1888
+
+        /**
+         * The maximum year value for movie searches.
+         */
         const val MAX_YEAR = 2024
     }
 }
